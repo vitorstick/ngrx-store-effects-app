@@ -2,7 +2,7 @@
 
 ## 1st
 ## Create Actions
-actions/pizzas.actions.ts
+store/actions/pizzas.actions.ts
 import {Action} from '@ngrx/store';
 
 export const LOAD_PIZZAS_SUCCESS = '[Products] Load Pizzas Success';
@@ -16,7 +16,7 @@ export type PizzaAction = ... | LoadPizzasSuccess;
 
 ## 2nd
 ## Create Reducers
-reducers/pizzas.reducers.ts
+store/reducers/pizzas.reducers.ts
 import * as fromPizzas from '../actions/pizzas.action';
 
 export const initialState: PizzaState = {
@@ -44,3 +44,28 @@ export function reducer(state = initialState, action: fromPizzas.PizzaAction): P
 	}
 	return state;
 }
+
+### export
+store/reducers/index.ts
+import { ActionReducerMap } from '@ngrx/store';
+import * as fromPizzas from './pizzas.reducer';
+
+export interface ProductsState {
+	pizzas: fromPizzas.PizzaState;
+}
+
+export const reducers: ActionReducerMap<ProductsState> = {
+	pizzas: fromPizzas.reducer
+};
+
+store/index.ts
+export * from './reducers';
+
+products.module.ts
+// reducers
+import { reducers } from './store';
+@NgModule({
+	imports: [
+    ...
+		StoreModule.forFeature('products', reducers)
+	],
