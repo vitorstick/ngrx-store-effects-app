@@ -69,3 +69,37 @@ import { reducers } from './store';
     ...
 		StoreModule.forFeature('products', reducers)
 	],
+
+
+## 3rd 
+## State composition 
+store/reducers/pizzas.reducers.ts
+export const getPizzasLoading = (state: PizzaState) => state.loading;
+export const getPizzasLoaded = (state: PizzaState) => state.loaded;
+export const getPizzas = (state: PizzaState) => state.data;
+
+store/reducers/index.ts
+import { ActionReducerMap, createFeatureSelector, createSelector } from '@ngrx/store';
+export const getProductsState = createFeatureSelector<ProductsState>('products');
+
+// pizzas state
+export const getPizzaState = createSelector(getProductsState, (state: ProductsState) => state.pizzas);
+
+export const getAllPizzas = createSelector(getPizzaState, fromPizzas.getPizzas);
+export const getAllPizzasLoaded = createSelector(getPizzaState, fromPizzas.getPizzasLoaded);
+export const getAllPizzasLoading = createSelector(getPizzaState, fromPizzas.getPizzasLoading);
+
+### products component
+import { Store } from '@ngrx/store';
+import * as fromStore from '../../store';
+
+pizzas$: Observable<Pizza[]>;
+
+	constructor(private store: Store<fromStore.ProductsState>) {}
+
+	ngOnInit() {
+		this.pizzas$ = this.store.select(fromStore.getAllPizzas);
+	}
+
+
+  *ngFor="let pizza of (pizzas$ | async)"
