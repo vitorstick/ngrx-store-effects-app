@@ -170,3 +170,57 @@ case fromPizzas.LOAD_PIZZAS_SUCCESS: {
   };
 }
 ...
+
+
+## 5th
+## Entities
+### Change data structure to use entities to optimize and not use arrays
+store/reducers/pizzas.reducers.ts
+export interface PizzaState {
+	entities: { [id: number]: Pizza };
+	loaded: boolean;
+	loading: boolean;
+}
+
+export const initialState: PizzaState = {
+	entities: {},
+	loaded: false,
+	loading: false
+};
+
+...
+case fromPizzas.LOAD_PIZZAS_SUCCESS: {
+  // bind values to state data
+  const pizzas = action.payload;
+
+  const entities = pizzas.reduce(
+    (entities: { [id: number]: Pizza }, pizza: Pizza) => {
+      return {
+        ...entities,
+        [pizza.id]: pizza
+      };
+    },
+    { ...state.entities }
+  );
+  return {
+    ...state,
+    loading: false,
+    loaded: true,
+    entities
+  };
+}
+...
+export const getPizzasEntities = (state: PizzaState) => state.entities;
+export const getPizzasLoading = (state: PizzaState) => state.loading;
+export const getPizzasLoaded = (state: PizzaState) => state.loaded;
+
+store/reducers/index.ts
+// MODIFIED FOR USING ENTITIES
+export const getPizzasEntities = createSelector(getPizzaState, fromPizzas.getPizzasEntities);
+
+export const getAllPizzas = createSelector(getPizzasEntities, (entities) => {
+	return Object.keys(entities).map((id) => entities[parseInt(id, 10)]);
+});
+
+export const getPizzasLoaded = createSelector(getPizzaState, fromPizzas.getPizzasLoaded);
+export const getPizzasLoading = createSelector(getPizzaState, fromPizzas.getPizzasLoading);
