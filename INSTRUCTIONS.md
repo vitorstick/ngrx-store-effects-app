@@ -74,6 +74,7 @@ import { reducers } from './store';
 ## 3rd 
 ## State composition 
 store/reducers/pizzas.reducers.ts
+...
 export const getPizzasLoading = (state: PizzaState) => state.loading;
 export const getPizzasLoaded = (state: PizzaState) => state.loaded;
 export const getPizzas = (state: PizzaState) => state.data;
@@ -90,16 +91,82 @@ export const getAllPizzasLoaded = createSelector(getPizzaState, fromPizzas.getPi
 export const getAllPizzasLoading = createSelector(getPizzaState, fromPizzas.getPizzasLoading);
 
 ### products component
+#### On Ts
 import { Store } from '@ngrx/store';
 import * as fromStore from '../../store';
 
 pizzas$: Observable<Pizza[]>;
 
-	constructor(private store: Store<fromStore.ProductsState>) {}
+constructor(private store: Store<fromStore.ProductsState>) {}
 
-	ngOnInit() {
-		this.pizzas$ = this.store.select(fromStore.getAllPizzas);
-	}
+ngOnInit() {
+  this.pizzas$ = this.store.select(fromStore.getAllPizzas);
+}
+
+#### On HTML
+*ngFor="let pizza of (pizzas$ | async)"
 
 
-  *ngFor="let pizza of (pizzas$ | async)"
+## 4th
+## Our first @Effect
+store/efects/pizzas.effect.ts
+import { Actions, Effect } from '@ngrx/effects';
+import * as fromServices from '../../services';
+import * as pizzaActions from '../actions/pizzas.action';
+
+@Injectable()
+export class PizzasEffects {
+	constructor(private actions$: Actions, private pizzaService: fromServices.PizzasService) {}
+
+	// EFFECTS RETURN ACTIONS
+	@Effect()
+	loadPizzas$ = this.actions$.ofType(pizzaActions.LOAD_PIZZAS).pipe(
+		switchMap(() => {
+			return this.pizzaService
+				.getPizzas()
+				.pipe(
+					map((pizzas) => new pizzaActions.LoadPizzasSuccess(pizzas)),
+					catchError((error) => of(new pizzaActions.LoadPizzasFail(error)))
+				);
+		})
+	);
+}
+
+store/efects/index.ts
+import { PizzasEffects } from './pizzas.effect';
+export const effects: any[] = [ PizzasEffects ];
+export * from './pizzas.effect';
+
+products.component.ts
+ngOnInit() {
+  this.pizzas$ = this.store.select(fromStore.getAllPizzas);
+  this.store.dispatch(new fromStore.LoadPizzas());
+}
+
+products.module.ts
+// reducers / effects
+import { effects, reducers } from './store';
+@NgModule({
+	imports: [
+    ...
+		StoreModule.forFeature('products', reducers),
+		EffectsModule.forFeature(effects)
+	],
+  ...
+})
+export class ProductsModule {}
+
+store/reducers/pizzas.reducers.ts
+...
+case fromPizzas.LOAD_PIZZAS_SUCCESS: {
+  // bind values to state data
+  // console.log('action.payload', action.payload);
+  const data = action.payload;
+  return {
+    ...state,
+    loading: false,
+    loaded: true,
+    data
+  };
+}
+...
