@@ -287,3 +287,44 @@ import { reducers } from './store';
     ...
 	],
 
+
+## 7th
+## Custom Router State Serializers
+* app/store/reducers/index.ts
+
+import { ActivatedRouteSnapshot, Params, RouterStateSnapshot } from '@angular/router';
+
+...
+export class CustomSerializer implements fromRouter.RouterStateSerializer<RouterStateUrl> {
+	serialize(routerState: RouterStateSnapshot): RouterStateUrl {
+		const { url } = routerState;
+		const { queryParams } = routerState.root;
+
+		let state: ActivatedRouteSnapshot = routerState.root;
+		// iterate through state tree of angular router
+		while (state.firstChild) {
+			state = state.firstChild;
+		}
+		const { params } = state;
+
+		return { url, queryParams, params };
+	}
+}
+
+
+* app/app.module.ts
+
+import { RouterStateSerializer, StoreRouterConnectingModule } from '@ngrx/router-store';
+import { CustomSerializer, reducers } from './store';
+
+...
+
+@NgModule({
+	imports: [
+    ....
+		StoreRouterConnectingModule,
+    ....
+	],
+	providers: [ { provide: RouterStateSerializer, useClass: CustomSerializer } ],
+  ....
+})
