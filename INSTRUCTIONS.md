@@ -2,7 +2,7 @@
 
 ## 1st
 ## Create Actions
-store/actions/pizzas.actions.ts
+products/store/actions/pizzas.actions.ts
 
   import {Action} from '@ngrx/store';
 
@@ -17,7 +17,7 @@ store/actions/pizzas.actions.ts
 
 ## 2nd
 ## Create Reducers
-store/reducers/pizzas.reducers.ts
+products/store/reducers/pizzas.reducers.ts
 
   import * as fromPizzas from '../actions/pizzas.action';
 
@@ -48,7 +48,7 @@ store/reducers/pizzas.reducers.ts
   }
 
 ### export
-store/reducers/index.ts
+products/store/reducers/index.ts
 
   import { ActionReducerMap } from '@ngrx/store';
   import * as fromPizzas from './pizzas.reducer';
@@ -61,7 +61,7 @@ store/reducers/index.ts
     pizzas: fromPizzas.reducer
   };
 
-store/index.ts
+products/store/index.ts
   export * from './reducers';
 
 products.module.ts
@@ -78,7 +78,7 @@ products.module.ts
 
 ## 3rd 
 ## State composition 
-store/reducers/pizzas.reducers.ts
+products/store/reducers/pizzas.reducers.ts
 
 ...
 
@@ -86,7 +86,7 @@ store/reducers/pizzas.reducers.ts
   export const getPizzasLoaded = (state: PizzaState) => state.loaded;
   export const getPizzas = (state: PizzaState) => state.data;
 
-  store/reducers/index.ts
+  products/store/reducers/index.ts
   import { ActionReducerMap, createFeatureSelector, createSelector } from '@ngrx/store';
   export const getProductsState = createFeatureSelector<ProductsState>('products');
 
@@ -116,7 +116,7 @@ store/reducers/pizzas.reducers.ts
 
 ## 4th
 ## Our first @Effect
-store/efects/pizzas.effect.ts
+products/store/efects/pizzas.effect.ts
 
 import { Actions, Effect } from '@ngrx/effects';
 import * as fromServices from '../../services';
@@ -140,7 +140,7 @@ export class PizzasEffects {
 	);
 }
 
-store/efects/index.ts
+products/store/efects/index.ts
 
   import { PizzasEffects } from './pizzas.effect';
   export const effects: any[] = [ PizzasEffects ];
@@ -167,7 +167,7 @@ products.module.ts
   })
   export class ProductsModule {}
 
-store/reducers/pizzas.reducers.ts
+products/store/reducers/pizzas.reducers.ts
 
 ...
 
@@ -190,7 +190,7 @@ store/reducers/pizzas.reducers.ts
 ## 5th
 ## Entities
 ### Change data structure to use entities to optimize and not use arrays
-store/reducers/pizzas.reducers.ts
+products/store/reducers/pizzas.reducers.ts
   export interface PizzaState {
     entities: { [id: number]: Pizza };
     loaded: boolean;
@@ -232,8 +232,9 @@ store/reducers/pizzas.reducers.ts
   export const getPizzasLoading = (state: PizzaState) => state.loading;
   export const getPizzasLoaded = (state: PizzaState) => state.loaded;
 
-store/reducers/index.ts
+products/store/reducers/index.ts
   // MODIFIED FOR USING ENTITIES
+
   export const getPizzasEntities = createSelector(getPizzaState, fromPizzas.getPizzasEntities);
 
   export const getAllPizzas = createSelector(getPizzasEntities, (entities) => {
@@ -243,4 +244,46 @@ store/reducers/index.ts
   export const getPizzasLoaded = createSelector(getPizzaState, fromPizzas.getPizzasLoaded);
 
   export const getPizzasLoading = createSelector(getPizzaState, fromPizzas.getPizzasLoading);
+
+
+## 6th
+## Hooking up @ngrx/router-store
+app/store/reducers/index.ts
+
+...
+import { Params } from '@angular/router';
+import * as fromRouter from '@ngrx/router-store';
+import { ActionReducerMap, createFeatureSelector } from '@ngrx/store';
+
+export interface RouterStateUrl {
+	url: string;
+	queryParams: Params;
+	params: Params;
+}
+
+export interface State {
+	routerReducer: fromRouter.RouterReducerState<RouterStateUrl>;
+}
+
+export const reducers: ActionReducerMap<State> = {
+	routerReducer: fromRouter.routerReducer
+};
+
+// CREATE SELECTORS
+export const getRouterState = createFeatureSelector<fromRouter.RouterReducerState<RouterStateUrl>>('routerReducer');
+...
+
+app/store/index.ts
+
+export * from './reducers';
+
+app/app.module.ts
+
+import { reducers } from './store';
+
+	imports: [
+    ...
+		StoreModule.forRoot(reducers, { metaReducers }),
+    ...
+	],
 
