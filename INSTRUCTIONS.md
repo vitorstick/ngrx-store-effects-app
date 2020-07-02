@@ -328,3 +328,79 @@ import { CustomSerializer, reducers } from './store';
 	providers: [ { provide: RouterStateSerializer, useClass: CustomSerializer } ],
   ....
 })
+
+
+## 8th
+## Router State and Entity Composition
+### Turn things more scalable!
+1. Create the selectors/pizzas.selectors.ts
+
+2. Move from reducers/index.ts to selectors/pizzas.selectors.ts the following code
+
+```
+// pizzas state
+export const getPizzaState = createSelector(getProductsState, (state: ProductsState) => state.pizzas);
+
+// MODIFIED FOR USING ENTITIES
+export const getPizzasEntities = createSelector(getPizzaState, fromPizzas.getPizzasEntities);
+
+export const getAllPizzas = createSelector(getPizzasEntities, (entities) => {
+	return Object.keys(entities).map((id) => entities[parseInt(id, 10)]);
+});
+
+export const getPizzasLoaded = createSelector(getPizzaState, fromPizzas.getPizzasLoaded);
+export const getPizzasLoading = createSelector(getPizzaState, fromPizzas.getPizzasLoading);
+```
+
+3. Add getSelectedPizza
+
+...
+
+export const getSelectedPizza = createSelector(
+	getPizzasEntities,
+	fromRoot.getRouterState,
+	(entities, router): Pizza => {
+		return router.state && entities[router.state.params.pizzaId];
+	}
+);
+
+...
+
+4. Change products\containers\product-item\product-item.component.ts
+
+      ...
+      <pizza-form
+        [pizza]="pizza$ | async"
+      ...
+
+
+import { Store } from '@ngrx/store';
+import * as fromStore from '../../store';
+
+...
+
+```
+export class ProductItemComponent implements OnInit {
+	pizza$: Observable<Pizza>;
+	visualise: Pizza;
+	toppings: Topping[];
+
+	constructor(private store: Store<fromStore.ProductsState>) {}
+
+	ngOnInit() {
+		this.pizza$ = this.store.select(fromStore.getSelectedPizza);
+	}
+
+	onSelect(event: number[]) {}
+
+	onCreate(event: Pizza) {}
+
+	onUpdate(event: Pizza) {}
+
+	onRemove(event: Pizza) {
+		const remove = window.confirm('Are you sure?');
+		if (remove) {
+		}
+	}
+}
+```
