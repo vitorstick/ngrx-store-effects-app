@@ -531,3 +531,48 @@ export const reducers: ActionReducerMap<ProductsState> = {
 };
 ...
 ```
+
+## 11th
+## Further Effects
+### Effects for the toppings
+
+1. Create the store/effects/toppings.effect.ts and create the content, similar to pizzas.effect.ts
+
+```
+import { Injectable } from '@angular/core';
+import { Actions, Effect } from '@ngrx/effects';
+import { of } from 'rxjs/Observable/of';
+import { catchError, map, switchMap } from 'rxjs/operators';
+import * as fromServices from '../../services';
+import * as toppingActions from '../actions/toppings.actions';
+
+@Injectable()
+export class ToppingEffects {
+	constructor(private actions$: Actions, private toppingService: fromServices.ToppingsService) {}
+
+	// EFFECTS RETURN ACTIONS
+	@Effect()
+	loadToppings$ = this.actions$.ofType(toppingActions.LOAD_TOPPINGS).pipe(
+		switchMap(() => {
+			return this.toppingService
+				.getToppings()
+				.pipe(
+					map((toppings) => new toppingActions.LoadToppingsSuccess(toppings)),
+					catchError((error) => of(new toppingActions.LoadToppingsFail(error)))
+				);
+		})
+	);
+}
+```
+
+2. Register the effect on effects\index.ts
+
+```
+import { PizzasEffects } from './pizzas.effect';
+import { ToppingEffects } from './toppings.effect';
+
+export const effects: any[] = [ PizzasEffects, ToppingEffects ];
+
+export * from './pizzas.effect';
+export * from './toppings.effect';
+```
