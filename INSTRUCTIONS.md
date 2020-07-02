@@ -404,3 +404,47 @@ export class ProductItemComponent implements OnInit {
 	}
 }
 ```
+
+## 9th
+## Further Action Creators
+### Actions for getting the toppings
+1. Create the store/actions/toppings.actions.ts and create the content, similar to pizzas.actions.ts
+
+```
+import { Action } from '@ngrx/store';
+import { Topping } from 'src/products/models/topping.model';
+
+// load toppings
+export const LOAD_TOPPINGS = '[Products] Load Toppings';
+export const LOAD_TOPPINGS_FAIL = '[Products] Load Toppings Fail';
+export const LOAD_TOPPINGS_SUCCESS = '[Products] Load Toppings Success';
+
+export class LoadToppings implements Action {
+	readonly type = LOAD_TOPPINGS;
+}
+
+export class LoadToppingsFail implements Action {
+	readonly type = LOAD_TOPPINGS_FAIL;
+	constructor(public payload: any) {}
+}
+
+export class LoadToppingsSuccess implements Action {
+	readonly type = LOAD_TOPPINGS_SUCCESS;
+	constructor(public payload: Topping[]) {}
+}
+
+export type ToppingsAction = LoadToppings | LoadToppingsFail | LoadToppingsSuccess;
+```
+
+2. On products\containers\product-item\product-item.component.ts
+dispatch the action for getting the toppings
+
+```
+...
+	ngOnInit() {
+    this.store.dispatch(new fromStore.LoadToppings());
+    ...
+	}
+  ...
+```
+

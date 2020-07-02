@@ -3,7 +3,7 @@ import { Actions, Effect } from '@ngrx/effects';
 import { of } from 'rxjs/Observable/of';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import * as fromServices from '../../services';
-import * as pizzaActions from '../actions/pizzas.action';
+import * as pizzaActions from '../actions/pizzas.actions';
 
 @Injectable()
 export class PizzasEffects {
