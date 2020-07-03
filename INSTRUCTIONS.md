@@ -776,3 +776,53 @@ export const getPizzaVisualised = createSelector(
 );
 
 ```
+
+
+## 6th
+## Store Selectors and Async Pipe
+1. Load toppings on products.component.ts
+
+```
+	ngOnInit() {
+    ...
+		this.store.dispatch(new fromStore.LoadToppings());
+	}
+```
+
+2. Load toppings on product-item.component.ts
+```
+        <pizza-display
+          [pizza]="visualise$ | async">
+        </pizza-display>
+        ...
+```
+
+```
+  ...
+	visualise$: Observable<Pizza>;
+
+  ...
+
+  ngOnInit() {
+		this.store.dispatch(new fromStore.LoadToppings());
+		this.pizza$ = this.store.select(fromStore.getSelectedPizza).pipe(
+			tap((pizza: Pizza) => {
+				const pizzaExist = !!(pizza && pizza.toppings);
+				// FOR THE CHECK IF THE ROUTER IS FOR /products/2 /products/new
+				// IN ONE CASE WE HAVE TOPPINGS, IN THE OTHER THE ARRAY IS EMPTY
+				const toppings = pizzaExist ? pizza.toppings.map((topping) => topping.id) : [];
+
+				this.store.dispatch(new fromStore.VisualizeToppings(toppings));
+			})
+		);
+		this.toppings$ = this.store.select(fromStore.getAllToppings);
+		this.visualise$ = this.store.select(fromStore.getPizzaVisualised);
+	}
+
+  ...
+
+  onSelect(event: number[]) {
+		this.store.dispatch(new fromStore.VisualizeToppings(event));
+	}
+  
+```
