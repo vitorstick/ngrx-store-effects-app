@@ -94,6 +94,7 @@ products.module.ts
 ## State composition 
 products/store/reducers/pizzas.reducers.ts
 
+```
 ...
 
   export const getPizzasLoading = (state: PizzaState) => state.loading;
@@ -111,8 +112,11 @@ products/store/reducers/pizzas.reducers.ts
   export const getAllPizzasLoaded = createSelector(getPizzaState, fromPizzas.getPizzasLoaded);
   export const getAllPizzasLoading = createSelector(getPizzaState, fromPizzas.getPizzasLoading);
 
+```
+
 ### products component
 #### On Ts
+```
   import { Store } from '@ngrx/store';
   import * as fromStore from '../../store';
 
@@ -123,14 +127,20 @@ products/store/reducers/pizzas.reducers.ts
   ngOnInit() {
     this.pizzas$ = this.store.select(fromStore.getAllPizzas);
   }
+```
 
 #### On HTML
-  *ngFor="let pizza of (pizzas$ | async)"
 
+```
+  *ngFor="let pizza of (pizzas$ | async)"
+```
 
 ## 4th
 ## Our first @Effect
-products/store/efects/pizzas.effect.ts
+
+1. products/store/efects/pizzas.effect.ts
+
+```
 
 import { Actions, Effect } from '@ngrx/effects';
 import * as fromServices from '../../services';
@@ -154,20 +164,32 @@ export class PizzasEffects {
 	);
 }
 
-products/store/efects/index.ts
+```
+
+2. products/store/efects/index.ts
+
+```
 
   import { PizzasEffects } from './pizzas.effect';
   export const effects: any[] = [ PizzasEffects ];
   export * from './pizzas.effect';
 
-products.component.ts
+  ```
+
+3. products.component.ts
+
+```
 
   ngOnInit() {
     this.pizzas$ = this.store.select(fromStore.getAllPizzas);
     this.store.dispatch(new fromStore.LoadPizzas());
   }
 
-products.module.ts
+```
+
+4. products.module.ts
+
+```
 
   // reducers / effects
   import { effects, reducers } from './store';
@@ -181,8 +203,11 @@ products.module.ts
   })
   export class ProductsModule {}
 
-products/store/reducers/pizzas.reducers.ts
+```
 
+5. products/store/reducers/pizzas.reducers.ts
+
+```
 ...
 
   case fromPizzas.LOAD_PIZZAS_SUCCESS: {
@@ -199,12 +224,15 @@ products/store/reducers/pizzas.reducers.ts
 
 ...
 
+```
 
 
 ## 5th
 ## Entities
 ### Change data structure to use entities to optimize and not use arrays
-products/store/reducers/pizzas.reducers.ts
+1. products/store/reducers/pizzas.reducers.ts
+
+```
   export interface PizzaState {
     entities: { [id: number]: Pizza };
     loaded: boolean;
@@ -246,8 +274,12 @@ products/store/reducers/pizzas.reducers.ts
   export const getPizzasLoading = (state: PizzaState) => state.loading;
   export const getPizzasLoaded = (state: PizzaState) => state.loaded;
 
-products/store/reducers/index.ts
+```
+
+2. products/store/reducers/index.ts
   // MODIFIED FOR USING ENTITIES
+
+```
 
   export const getPizzasEntities = createSelector(getPizzaState, fromPizzas.getPizzasEntities);
 
@@ -259,10 +291,14 @@ products/store/reducers/index.ts
 
   export const getPizzasLoading = createSelector(getPizzaState, fromPizzas.getPizzasLoading);
 
+```
+
 
 ## 6th
 ## Hooking up @ngrx/router-store
-app/store/reducers/index.ts
+1. app/store/reducers/index.ts
+
+```
 
 ...
 import { Params } from '@angular/router';
@@ -287,11 +323,17 @@ export const reducers: ActionReducerMap<State> = {
 export const getRouterState = createFeatureSelector<fromRouter.RouterReducerState<RouterStateUrl>>('routerReducer');
 ...
 
-app/store/index.ts
+```
 
+2. app/store/index.ts
+```
 export * from './reducers';
+```
 
-app/app.module.ts
+
+3. app/app.module.ts
+
+```
 
 import { reducers } from './store';
 
@@ -300,11 +342,13 @@ import { reducers } from './store';
 		StoreModule.forRoot(reducers, { metaReducers }),
     ...
 	],
-
+```
 
 ## 7th
 ## Custom Router State Serializers
 * app/store/reducers/index.ts
+
+```
 
 import { ActivatedRouteSnapshot, Params, RouterStateSnapshot } from '@angular/router';
 
@@ -324,10 +368,11 @@ export class CustomSerializer implements fromRouter.RouterStateSerializer<Router
 		return { url, queryParams, params };
 	}
 }
-
+```
 
 * app/app.module.ts
 
+```
 import { RouterStateSerializer, StoreRouterConnectingModule } from '@ngrx/router-store';
 import { CustomSerializer, reducers } from './store';
 
@@ -342,7 +387,7 @@ import { CustomSerializer, reducers } from './store';
 	providers: [ { provide: RouterStateSerializer, useClass: CustomSerializer } ],
   ....
 })
-
+```
 
 ## 8th
 ## Router State and Entity Composition
@@ -367,7 +412,7 @@ export const getPizzasLoading = createSelector(getPizzaState, fromPizzas.getPizz
 ```
 
 3. Add getSelectedPizza
-
+```
 ...
 
 export const getSelectedPizza = createSelector(
@@ -379,9 +424,11 @@ export const getSelectedPizza = createSelector(
 );
 
 ...
+```
+
 
 4. Change products\containers\product-item\product-item.component.ts
-
+```
       ...
       <pizza-form
         [pizza]="pizza$ | async"
@@ -393,7 +440,6 @@ import * as fromStore from '../../store';
 
 ...
 
-```
 export class ProductItemComponent implements OnInit {
 	pizza$: Observable<Pizza>;
 	visualise: Pizza;
@@ -709,7 +755,7 @@ export const getSelectedToppings = createSelector(getToppingsState, fromToppings
 
 ```
 
-3. Create the selector for toppings on pizza select => pizzas.selectors.ts
+4. Create the selector for toppings on pizza select => pizzas.selectors.ts
 
 ```
 import * as fromToppings from './toppings.selectors';
