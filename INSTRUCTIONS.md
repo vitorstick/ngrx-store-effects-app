@@ -577,7 +577,7 @@ export * from './pizzas.effect';
 export * from './toppings.effect';
 ```
 
-## 11th
+## 12th
 ## Selector Composition
 ### Selectors for the toppings
 
