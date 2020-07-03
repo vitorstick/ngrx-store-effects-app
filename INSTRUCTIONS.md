@@ -4,6 +4,8 @@
 ## Create Actions
 products/store/actions/pizzas.actions.ts
 
+```
+
   import {Action} from '@ngrx/store';
 
   export const LOAD_PIZZAS_SUCCESS = '[Products] Load Pizzas Success';
@@ -15,9 +17,13 @@ products/store/actions/pizzas.actions.ts
 
   export type PizzaAction = ... | LoadPizzasSuccess;
 
+```
+
 ## 2nd
 ## Create Reducers
-products/store/reducers/pizzas.reducers.ts
+1. products/store/reducers/pizzas.reducers.ts
+
+```
 
   import * as fromPizzas from '../actions/pizzas.action';
 
@@ -46,9 +52,12 @@ products/store/reducers/pizzas.reducers.ts
     }
     return state;
   }
+```
 
 ### export
-products/store/reducers/index.ts
+2. products/store/reducers/index.ts
+
+```
 
   import { ActionReducerMap } from '@ngrx/store';
   import * as fromPizzas from './pizzas.reducer';
@@ -61,7 +70,11 @@ products/store/reducers/index.ts
     pizzas: fromPizzas.reducer
   };
 
-products/store/index.ts
+  ```
+
+3. products/store/index.ts
+
+```
   export * from './reducers';
 
 products.module.ts
@@ -75,6 +88,7 @@ products.module.ts
     ],
     ...
 
+```
 
 ## 3rd 
 ## State composition 
@@ -630,4 +644,89 @@ export const getToppingsLoading = createSelector(getToppingsState, fromToppings.
 		this.toppings$ = this.store.select(fromStore.getAllToppings);
 	}
   ...
+```
+
+
+## 13th
+## Mapping IDs to Entities
+### Visualize the pizza with toppings
+
+1. Create the actions => toppings.actions.ts
+
+```
+...
+export const VISUALIZE_TOPPINGS = '[Products] Visualize Toppings';
+
+...
+
+export class VisualizeToppings implements Action {
+	readonly type = VISUALIZE_TOPPINGS;
+	constructor(public payload: number[]) {}
+}
+
+export type ToppingsAction = LoadToppings | LoadToppingsFail | LoadToppingsSuccess | VisualizeToppings;
+
+```
+2. Create the reducer => toppings.reducer.ts
+
+```
+...
+
+export interface ToppingsState {
+	entities: { [id: number]: Topping };
+	loaded: boolean;
+	loading: boolean;
+	selectedToppings: number[];
+}
+
+export const initialState: ToppingsState = {
+	entities: {},
+	loaded: false,
+	loading: false,
+	selectedToppings: []
+};
+
+export function reducer(state = initialState, action: fromToppings.ToppingsAction): ToppingsState {
+	switch (action.type) {
+		case fromToppings.VISUALIZE_TOPPINGS: {
+			const selectedToppings = action.payload;
+			return {
+				...state,
+				selectedToppings
+			};
+		}
+
+    ...
+
+export const getSelectedToppings = (state: ToppingsState) => state.selectedToppings;
+
+```
+
+3. Create the selector for toppings => toppings.selectors.ts
+
+```
+export const getSelectedToppings = createSelector(getToppingsState, fromToppings.getSelectedToppings);
+
+```
+
+3. Create the selector for toppings on pizza select => pizzas.selectors.ts
+
+```
+import * as fromToppings from './toppings.selectors';
+
+...
+
+export const getPizzaVisualised = createSelector(
+	getSelectedPizza,
+	fromToppings.getToppingsEntities,
+	fromToppings.getSelectedToppings,
+	(pizza, toppingEntities, selectedToppings) => {
+		const toppings = selectedToppings.map((id) => toppingEntities[id]);
+		return {
+			...pizza,
+			toppings
+		};
+	}
+);
+
 ```
