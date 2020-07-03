@@ -576,3 +576,58 @@ export const effects: any[] = [ PizzasEffects, ToppingEffects ];
 export * from './pizzas.effect';
 export * from './toppings.effect';
 ```
+
+## 11th
+## Selector Composition
+### Selectors for the toppings
+
+1. Create the store/selectors/toppings.selectors.ts and create the content, similar to pizzas.selectors.ts
+
+```
+import { createSelector } from '@ngrx/store';
+import * as fromFeature from '../reducers';
+import * as fromToppings from '../reducers/toppings.reducer';
+
+// toppings state
+export const getToppingsState = createSelector(
+	fromFeature.getProductsState,
+	(state: fromFeature.ProductsState) => state.toppings
+);
+
+// FOR USING ENTITIES
+export const getToppingsEntities = createSelector(getToppingsState, fromToppings.getToppingEntities);
+
+export const getAllToppings = createSelector(getToppingsEntities, (entities) => {
+	return Object.keys(entities).map((id) => entities[parseInt(id, 10)]);
+});
+
+export const getToppingsLoaded = createSelector(getToppingsState, fromToppings.getToppingLoaded);
+export const getToppingsLoading = createSelector(getToppingsState, fromToppings.getToppingLoading);
+
+```
+
+2. Bond the action to the product-item.component.ts
+
+```
+      ...
+      <pizza-form
+        [pizza]="pizza$ | async"
+        [toppings]="toppings$ | async"
+        ...
+
+```
+  ...
+
+```
+  ...
+	toppings$: Observable<Topping[]>;
+
+	constructor(private store: Store<fromStore.ProductsState>) {}
+
+	ngOnInit() {
+		this.store.dispatch(new fromStore.LoadToppings());
+		this.pizza$ = this.store.select(fromStore.getSelectedPizza);
+		this.toppings$ = this.store.select(fromStore.getAllToppings);
+	}
+  ...
+```
