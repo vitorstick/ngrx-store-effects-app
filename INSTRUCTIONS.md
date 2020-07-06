@@ -919,3 +919,89 @@ export type PizzaAction =
   ...
   
 ```
+
+## 15th
+## Updating, via Dispatch, Reducer and Effect
+### CRUD Operations
+
+1. Create the actions on pizzas.actions.ts
+
+```
+...
+// UPDATE PIZZA
+export const UPDATE_PIZZA = '[Products] Update Pizza';
+export const UPDATE_PIZZA_FAIL = '[Products] Update Pizza Fail';
+export const UPDATE_PIZZA_SUCCESS = '[Products] Update Pizza Success';
+
+export class UpdatePizza implements Action {
+	readonly type = UPDATE_PIZZA;
+	constructor(public payload: Pizza) {}
+}
+
+export class UpdatePizzaFail implements Action {
+	readonly type = UPDATE_PIZZA_FAIL;
+	constructor(public payload: any) {}
+}
+
+export class UpdatePizzaSuccess implements Action {
+	readonly type = UPDATE_PIZZA_SUCCESS;
+	constructor(public payload: Pizza) {}
+}
+...
+export type PizzaAction =
+  ...
+	| UpdatePizza
+	| UpdatePizzaFail
+	| UpdatePizzaSuccess;
+
+```
+
+2. Dispatch the actions on product-item.component.ts
+```
+	onUpdate(event: Pizza) {
+		this.store.dispatch(new fromStore.UpdatePizza(event));
+	}
+```
+3. Create the Effect for actions on pizzas.effect.ts
+```
+...
+	@Effect()
+	updatePizza$ = this.actions$.ofType(pizzaActions.UPDATE_PIZZA).pipe(
+		map((action: pizzaActions.UpdatePizza) => action.payload),
+		switchMap((pizza) => {
+			return this.pizzaService
+				.updatePizza(pizza)
+				.pipe(
+					map((pizza) => new pizzaActions.UpdatePizzaSuccess(pizza)),
+					catchError((error) => of(new pizzaActions.UpdatePizzaFail(error)))
+				);
+		})
+	);
+  ...
+```
+4. Bind the action on pizzas.reducer.ts (JUST ADD THE CASE, THE CODE WILL BE SIMILAR FOR CREATE AND UPDATE)
+
+```
+    // CRUD OPERATIONS FOR PIZZA
+    // FOR CREATE AND UPDATE IS SIMILIAR
+		case fromPizzas.CREATE_PIZZA_SUCESS:
+		case fromPizzas.UPDATE_PIZZA_SUCCESS: {
+			const pizza = action.payload;
+
+			const entities = {
+				...state.entities,
+				[pizza.id]: pizza
+			};
+			return {
+				...state,
+				entities
+			};
+		}
+		case fromPizzas.CREATE_PIZZA_FAIL: {
+			return {
+				...state
+			};
+		}
+	}
+
+```

@@ -49,7 +49,9 @@ export function reducer(state = initialState, action: fromPizzas.PizzaAction): P
 			};
 		}
 		// CRUD OPERATIONS FOR PIZZA
-		case fromPizzas.CREATE_PIZZA_SUCESS: {
+		// FOR CREATE AND UPDATE IS SIMILIAR
+		case fromPizzas.CREATE_PIZZA_SUCESS:
+		case fromPizzas.UPDATE_PIZZA_SUCCESS: {
 			const pizza = action.payload;
 
 			const entities = {
