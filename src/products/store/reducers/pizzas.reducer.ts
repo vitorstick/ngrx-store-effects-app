@@ -48,6 +48,24 @@ export function reducer(state = initialState, action: fromPizzas.PizzaAction): P
 				loaded: false
 			};
 		}
+		// CRUD OPERATIONS FOR PIZZA
+		case fromPizzas.CREATE_PIZZA_SUCESS: {
+			const pizza = action.payload;
+
+			const entities = {
+				...state.entities,
+				[pizza.id]: pizza
+			};
+			return {
+				...state,
+				entities
+			};
+		}
+		case fromPizzas.CREATE_PIZZA_FAIL: {
+			return {
+				...state
+			};
+		}
 	}
 	return state;
 }

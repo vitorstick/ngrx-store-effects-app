@@ -778,7 +778,7 @@ export const getPizzaVisualised = createSelector(
 ```
 
 
-## 6th
+## 14th
 ## Store Selectors and Async Pipe
 1. Load toppings on products.component.ts
 
@@ -824,5 +824,98 @@ export const getPizzaVisualised = createSelector(
   onSelect(event: number[]) {
 		this.store.dispatch(new fromStore.VisualizeToppings(event));
 	}
+  
+```
+
+## 15th
+## Creating, via Dispatch, Reducer and Effect
+### CRUD Operations
+
+1. Create actions on pizzas.actions.ts
+
+```
+...
+
+// CREATE PIZZA
+export const CREATE_PIZZA = '[Products] Create Pizza';
+export const CREATE_PIZZA_FAIL = '[Products] Create Pizza Fail';
+export const CREATE_PIZZA_SUCESS = '[Products] Create Pizza Sucess';
+
+export class CreatePizza implements Action {
+	readonly type = CREATE_PIZZA;
+	constructor(public payload: Pizza) {}
+}
+
+export class CreatePizzaFail implements Action {
+	readonly type = CREATE_PIZZA_FAIL;
+	constructor(public payload: any) {}
+}
+
+export class CreatePizzaSuccess implements Action {
+	readonly type = CREATE_PIZZA_SUCESS;
+	constructor(public payload: Pizza) {}
+}
+
+export type PizzaAction =
+	| LoadPizzas
+	| LoadPizzasFail
+	| LoadPizzasSuccess
+	| CreatePizza
+	| CreatePizzaFail
+	| CreatePizzaSuccess;
+```
+
+2. Dispatch action for new pizza on product-item.component.ts
+
+```
+  ...
+	onCreate(event: Pizza) {
+		this.store.dispatch(new fromStore.CreatePizza(event));
+	}
+  ...
+```
+
+3. Create the effects on pizza.effect.ts
+
+```
+  ...
+	@Effect()
+	createPizza$ = this.actions$.ofType(pizzaActions.CREATE_PIZZA).pipe(
+		map((action: pizzaActions.CreatePizza) => action.payload),
+		switchMap((pizza) => {
+			return this.pizzaService
+				.createPizza(pizza)
+				.pipe(
+					map((pizza) => new pizzaActions.CreatePizzaSuccess(pizza)),
+					catchError((error) => of(new pizzaActions.CreatePizzaFail(error)))
+				);
+		})
+	);
+  ...
+
+```
+
+4. Bind to the state on pizzas.reducer.ts
+
+```
+  ...
+    case fromPizzas.CREATE_PIZZA_SUCESS: {
+			const pizza = action.payload;
+
+			const entities = {
+				...state.entities,
+				[pizza.id]: pizza
+			};
+			return {
+				...state,
+				entities
+			};
+		}
+		case fromPizzas.CREATE_PIZZA_FAIL: {
+			return {
+				...state
+			};
+		}
+  ...
   
 ```
