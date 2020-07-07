@@ -1082,3 +1082,124 @@ export type PizzaAction =
 		}
 
 ```
+
+## 18th
+## Router Actions and Effect
+### Routing effects and actions for navigation
+
+1. Create the actions file app/store/actions/router.action.ts and app/store/actions/index.ts
+
+```
+import { NavigationExtras } from '@angular/router';
+import { Action } from '@ngrx/store';
+
+export const GO = '[Router] GO';
+export const BACK = '[Router] Back';
+export const FORWARD = '[Router] Forward';
+
+export class Go implements Action {
+	readonly type = GO;
+
+	constructor(
+		public payload: {
+			path: any[];
+			query?: Object;
+			extras?: NavigationExtras;
+		}
+	) {}
+}
+
+export class Back implements Action {
+	readonly type = BACK;
+}
+
+export class Forward implements Action {
+	readonly type = FORWARD;
+}
+
+export type Actions = Go | Back | Forward;
+
+```
+
+2. Export on index.ts
+```
+export * from './router.action';
+
+```
+
+3. Create the actions file app/store/effects/router.effect.ts
+```
+import { Location } from '@angular/common';
+import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
+import { Actions, Effect } from '@ngrx/effects';
+import { map, tap } from 'rxjs/operators';
+import * as RouterActions from '../actions/router.action';
+
+@Injectable()
+export class RouterEffects {
+	constructor(private actions$: Actions, private router: Router, private location: Location) {}
+
+	@Effect({ dispatch: false })
+	navigate$ = this.actions$.ofType(RouterActions.GO).pipe(
+		map((action: RouterActions.Go) => action.payload),
+		tap(({ path, query: queryParams, extras }) => {
+			this.router.navigate(path, { queryParams, ...extras });
+		})
+	);
+
+	@Effect({ dispatch: false })
+	navigateBack$ = this.actions$.ofType(RouterActions.BACK).pipe(
+		tap(() => {
+			this.location.back();
+		})
+	);
+
+	@Effect({ dispatch: false })
+	navigateForward$ = this.actions$.ofType(RouterActions.FORWARD).pipe(
+		tap(() => {
+			this.location.forward();
+		})
+	);
+}
+```
+
+4. Import and export app/store/effects/index.ts
+
+```
+import { RouterEffects } from './router.effect';
+
+export const effects: any[] = [ RouterEffects ];
+export * from './router.effect';
+
+```
+
+5. Export effects and actions on app/store/index.ts
+
+```
+export * from './actions';
+export * from './effects';
+export * from './reducers';
+
+```
+
+6. Bind effects array on app.module.ts
+
+```
+...
+
+import { CustomSerializer, effects, reducers } from './store';
+
+...
+@NgModule({
+	imports: [
+    ...
+		EffectsModule.forRoot(effects),
+    ...
+	],
+  ...
+})
+
+...
+
+```
