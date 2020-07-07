@@ -1203,3 +1203,41 @@ import { CustomSerializer, effects, reducers } from './store';
 ...
 
 ```
+
+## 19th
+## Multiple Actions in Effects, Router Actions
+### Effects calling other Effects based on Actions and routing
+
+1. New Effects on pizzas.effect.ts for managing routing on action
+```
+...
+
+  // FOR MANAGING CREATE PIZZA WITH SUCCESS AND THEN NAVIGATE TO THE PIZZA
+	@Effect()
+	createPizzaSuccess$ = this.actions$.ofType(pizzaActions.CREATE_PIZZA_SUCESS).pipe(
+		map((action: pizzaActions.CreatePizzaSuccess) => action.payload),
+		map((pizza) => {
+			return new fromRoot.Go({
+				path: [ '/products', pizza.id ]
+			});
+		})
+	);
+
+...
+
+
+  // EFFECT FOR MULTIPLE ACTIONS (THIS CASE FOR UPDATE PIZZA SUCCESS AND REMOVE PIZZA SUCCESS)
+	@Effect()
+	handlePizzaSuccess$ = this.actions$
+		.ofType(pizzaActions.UPDATE_PIZZA_SUCCESS, pizzaActions.REMOVE_PIZZA_SUCCESS)
+		.pipe(
+			map((pizza) => {
+				return new fromRoot.Go({
+					path: [ '/products' ]
+				});
+			})
+		);
+
+  ...
+  
+```
