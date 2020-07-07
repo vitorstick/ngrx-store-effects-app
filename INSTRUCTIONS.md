@@ -1491,3 +1491,15 @@ export const ROUTES: Routes = [
 ...
 ```
 
+## 23th
+## OnPush, everywhere
+### Every Smart component using onPush for change detection strategy, because we are only using observables
+
+1. On products.component / product-item.component and pizza-form.component add:
+
+```
+@Component({
+  ...
+	changeDetection: ChangeDetectionStrategy.OnPush,
+  ...
+```
