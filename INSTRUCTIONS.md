@@ -920,7 +920,7 @@ export type PizzaAction =
   
 ```
 
-## 15th
+## 16th
 ## Updating, via Dispatch, Reducer and Effect
 ### CRUD Operations
 
@@ -1003,5 +1003,82 @@ export type PizzaAction =
 			};
 		}
 	}
+
+```
+
+## 17th
+## Deleting, via Dispatch, Reducer and Effect
+### CRUD Operations for Delete
+
+1. Create the actions on pizzas.actions.ts
+
+```
+...
+// REMOVE PIZZA
+export const REMOVE_PIZZA = '[Products] Remove Pizza';
+export const REMOVE_PIZZA_FAIL = '[Products] Remove Pizza Fail';
+export const REMOVE_PIZZA_SUCCESS = '[Products] Remove Pizza Success';
+
+export class RemovePizza implements Action {
+	readonly type = REMOVE_PIZZA;
+	constructor(public payload: Pizza) {}
+}
+
+export class RemovePizzaFail implements Action {
+	readonly type = REMOVE_PIZZA_FAIL;
+	constructor(public payload: any) {}
+}
+
+export class RemovePizzaSuccess implements Action {
+	readonly type = REMOVE_PIZZA_SUCCESS;
+	constructor(public payload: Pizza) {}
+}
+...
+export type PizzaAction =
+  ...
+	| RemovePizza
+	| RemovePizzaFail
+	| RemovePizzaSuccess;
+
+```
+
+2. Dispatch the actions on product-item.component.ts
+```
+	onRemove(event: Pizza) {
+		const remove = window.confirm('Are you sure?');
+		if (remove) {
+			this.store.dispatch(new fromStore.RemovePizza(event));
+		}
+	}
+
+```
+3. Create the Effect for actions on pizzas.effect.ts
+```
+...
+	@Effect()
+	removePizza$ = this.actions$.ofType(pizzaActions.REMOVE_PIZZA).pipe(
+		map((action: pizzaActions.RemovePizza) => action.payload),
+		switchMap((pizza) => {
+			return this.pizzaService
+				.removePizza(pizza)
+				.pipe(
+					map(() => new pizzaActions.RemovePizzaSuccess(pizza)),
+					catchError((error) => of(new pizzaActions.RemovePizzaFail(error)))
+				);
+		})
+	);
+  ...
+```
+4. Bind the action on pizzas.reducer.ts (JUST ADD THE CASE, THE CODE WILL BE SIMILAR FOR CREATE AND UPDATE)
+
+```
+		case fromPizzas.REMOVE_PIZZA_SUCCESS: {
+			const pizza = action.payload;
+			const { [pizza.id]: removed, ...entities } = state.entities;
+			return {
+				...state,
+				entities
+			};
+		}
 
 ```
