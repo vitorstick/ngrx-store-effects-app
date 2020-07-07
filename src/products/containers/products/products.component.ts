@@ -37,6 +37,6 @@ export class ProductsComponent implements OnInit {
 		this.pizzas$ = this.store.select(fromStore.getAllPizzas);
 		// replacing this dispatch for route guard
 		// this.store.dispatch(new fromStore.LoadPizzas());
-		this.store.dispatch(new fromStore.LoadToppings());
+		// this.store.dispatch(new fromStore.LoadToppings());
 	}
 }

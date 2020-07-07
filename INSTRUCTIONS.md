@@ -1406,3 +1406,88 @@ export const ROUTES: Routes = [
 ...
 
 ```
+
+## 22th
+## One more Guard
+### Create guard for the toppings
+
+1. Create folder and files products/guards/toppings.guard.ts and products/guards/index.ts
+
+```
+import { Injectable } from '@angular/core';
+import { CanActivate } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { of } from 'core-js/fn/array';
+import { Observable } from 'rxjs/Observable';
+import { catchError, filter, switchMap, take, tap } from 'rxjs/operators';
+import * as fromStore from '../store';
+
+@Injectable()
+export class ToppingsGuard implements CanActivate {
+	constructor(private store: Store<fromStore.ProductsState>) {}
+
+	canActivate(): Observable<boolean> {
+		return this.checkStore().pipe(switchMap(() => of(true)), catchError(() => of(false)));
+	}
+
+	checkStore(): Observable<boolean> {
+		return this.store.select(fromStore.getToppingsLoaded).pipe(
+			tap((loaded) => {
+				if (!loaded) {
+					this.store.dispatch(new fromStore.LoadToppings());
+				}
+			}),
+			filter((loaded) => loaded),
+			take(1)
+		);
+	}
+}
+
+```
+2. Update the guards/index.ts
+
+```
+import { PizzaExistsGuard } from './pizza-exist.guard';
+import { PizzasGuard } from './pizzas.guard';
+import { ToppingsGuard } from './toppings.guard';
+
+export const guards: any[] = [ PizzasGuard, PizzaExistsGuard, ToppingsGuard ];
+
+export * from './pizza-exist.guard';
+export * from './pizzas.guard';
+export * from './toppings.guard';
+```
+
+3. Add the guard on can activate of routing
+
+```
+...
+export const ROUTES: Routes = [
+  ...
+	{
+		path: 'new',
+		canActivate: [ fromGuards.PizzasGuard, fromGuards.ToppingsGuard ],
+		component: fromContainers.ProductItemComponent
+	},
+	{
+		path: ':pizzaId',
+		canActivate: [ fromGuards.PizzaExistsGuard, fromGuards.ToppingsGuard ],
+		component: fromContainers.ProductItemComponent
+	}
+];
+...
+```
+
+4. On products.component.ts remove the dispatch of the action, now present on the guard
+
+```
+...
+	ngOnInit() {
+		this.pizzas$ = this.store.select(fromStore.getAllPizzas);
+		// replacing this dispatch for route guard
+		// this.store.dispatch(new fromStore.LoadPizzas());
+		// this.store.dispatch(new fromStore.LoadToppings());
+	}
+...
+```
+
