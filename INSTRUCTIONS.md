@@ -1241,3 +1241,89 @@ import { CustomSerializer, effects, reducers } from './store';
   ...
   
 ```
+
+## 20th
+## Preloading across multiple Routes
+### Creating guards for the routes and dispatch action from there
+
+1. Create folder and files products/guards/pizzas.guard.ts and products/guards/index.ts
+
+```
+// products/guards/pizzas.guard.ts
+import { Observable } from 'rxjs/Observable';
+import { catchError, filter, switchMap, take, tap } from 'rxjs/operators';
+import * as fromStore from '../store';
+
+@Injectable()
+export class PizzasGuard implements CanActivate {
+	constructor(private store: Store<fromStore.ProductsState>) {}
+
+	canActivate(): Observable<boolean> {
+		return this.checkStore().pipe(switchMap(() => of(true)), catchError(() => of(false)));
+	}
+
+	checkStore(): Observable<boolean> {
+		return this.store.select(fromStore.getPizzasLoaded).pipe(
+			tap((loaded) => {
+				if (!loaded) {
+					this.store.dispatch(new fromStore.LoadPizzas());
+				}
+			}),
+			filter((loaded) => loaded),
+			take(1)
+		);
+	}
+}
+```
+
+```
+// products/guards/pizzas.guard.ts
+import { PizzasGuard } from './pizzas.guard';
+
+export const guards: any[] = [ PizzasGuard ];
+
+export * from './pizzas.guard';
+```
+
+2. Register it on products.module.ts and bind it on the routes with canActivate
+
+```
+...
+// guards
+import * as fromGuards from './guards';
+...
+
+// routes
+export const ROUTES: Routes = [
+	{
+		path: '',
+		canActivate: [ fromGuards.PizzasGuard ],
+		component: fromContainers.ProductsComponent
+	},
+	{
+		path: 'new',
+		canActivate: [ fromGuards.PizzasGuard ],
+		component: fromContainers.ProductItemComponent
+	},
+  ...
+];
+
+...
+
+@NgModule({
+  ...
+	providers: [ ...fromServices.services, ...fromGuards.guards ],
+  ...
+})
+```
+
+3. Remove the dispatch of the action from products.component.ts
+
+```
+	ngOnInit() {
+		this.pizzas$ = this.store.select(fromStore.getAllPizzas);
+		// replacing this dispatch for route guard dispatch
+		// this.store.dispatch(new fromStore.LoadPizzas());
+		this.store.dispatch(new fromStore.LoadToppings());
+	}
+```
