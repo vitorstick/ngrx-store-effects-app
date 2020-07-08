@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivate } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { of } from 'core-js/fn/array';
 import { Observable } from 'rxjs/Observable';
-import { catchError, filter, map, switchMap, take, tap } from 'rxjs/operators';
+import { filter, map, switchMap, take, tap } from 'rxjs/operators';
 import { Pizza } from '../models/pizza.model';
 import * as fromStore from '../store';
 
@@ -16,8 +15,7 @@ export class PizzaExistsGuard implements CanActivate {
 			switchMap(() => {
 				const id = route.params.pizzaId;
 				return this.hasPizza(id);
-			}),
-			catchError(() => of(false))
+			})
 		);
 	}
 
