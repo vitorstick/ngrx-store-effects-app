@@ -21,6 +21,7 @@ export function reducer(state = initialState, action: fromPizzas.PizzaAction): P
 				loading: true
 			};
 		}
+
 		case fromPizzas.LOAD_PIZZAS_SUCCESS: {
 			// bind values to state data
 			const pizzas = action.payload;
@@ -32,8 +33,11 @@ export function reducer(state = initialState, action: fromPizzas.PizzaAction): P
 						[pizza.id]: pizza
 					};
 				},
-				{ ...state.entities }
+				{
+					...state.entities
+				}
 			);
+
 			return {
 				...state,
 				loading: false,
@@ -41,6 +45,7 @@ export function reducer(state = initialState, action: fromPizzas.PizzaAction): P
 				entities
 			};
 		}
+
 		case fromPizzas.LOAD_PIZZAS_FAIL: {
 			return {
 				...state,
