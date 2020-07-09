@@ -1,10 +1,8 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { Actions } from '@ngrx/effects';
-import { cold, hot } from 'jasmine-marbles';
-import { Observable } from 'rxjs/Observable';
-import { empty } from 'rxjs/observable/empty';
-import { of } from 'rxjs/observable/of';
+import { cold } from 'jasmine-marbles';
+import { empty, Observable, of } from 'rxjs';
 import { ToppingsService } from '../../services/toppings.service';
 import * as fromActions from '../actions/toppings.actions';
 import * as fromEffects from './toppings.effect';
@@ -48,7 +46,7 @@ describe('ToppingsEffects', () => {
 			const action = new fromActions.LoadToppings();
 			const completion = new fromActions.LoadToppingsSuccess(toppings);
 
-			actions$.stream = hot('-a', { a: action });
+			// actions$.stream = hot('-a', { a: action });
 			const expected = cold('-b', { b: completion });
 
 			expect(effects.loadToppings$).toBeObservable(expected);

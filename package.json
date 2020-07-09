@@ -43,7 +43,7 @@
 		"raw-loader": "0.5.1",
 		"rimraf": "2.6.2",
 		"sass-loader": "6.0.6",
-		"typescript": "3.9.6",
+		"typescript": "3.7.5",
 		"webpack": "3.6.0",
 		"webpack-dev-server": "2.8.2"
 	},
@@ -64,7 +64,8 @@
 		"reflect-metadata": "0.1.10",
 		"rxjs": "6.6.0",
 		"ts-helpers": "1.1.2",
-		"tslib": "1.8.0",
+		"tslib": "1.10.0",
+		"tslint": "~6.1.2",
 		"zone.js": "0.10.3"
 	}
 }

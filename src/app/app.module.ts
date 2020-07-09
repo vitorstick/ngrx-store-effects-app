@@ -36,7 +36,7 @@ export const ROUTES: Routes = [
 		RouterModule.forRoot(ROUTES),
 		StoreModule.forRoot(reducers, { metaReducers }),
 		EffectsModule.forRoot(effects),
-		StoreRouterConnectingModule,
+		StoreRouterConnectingModule.forRoot(),
 		environment.development ? StoreDevtoolsModule.instrument() : []
 	],
 	providers: [ { provide: RouterStateSerializer, useClass: CustomSerializer } ],

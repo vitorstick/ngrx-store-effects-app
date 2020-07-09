@@ -1,10 +1,8 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { Actions } from '@ngrx/effects';
-import { cold, hot } from 'jasmine-marbles';
-import { Observable } from 'rxjs/Observable';
-import { empty } from 'rxjs/observable/empty';
-import { of } from 'rxjs/observable/of';
+import { cold } from 'jasmine-marbles';
+import { empty, Observable, of } from 'rxjs';
 import { PizzasService } from '../../services/pizzas.service';
 import * as fromActions from '../actions/pizzas.actions';
 import * as fromEffects from './pizzas.effect';
@@ -62,7 +60,7 @@ describe('PizzasEffects', () => {
 			const action = new fromActions.LoadPizzas();
 			const completion = new fromActions.LoadPizzasSuccess(pizzas);
 
-			actions$.stream = hot('-a', { a: action });
+			// actions$.stream = hot('-a', { a: action });
 			const expected = cold('-b', { b: completion });
 
 			expect(effects.loadPizzas$).toBeObservable(expected);
@@ -74,7 +72,7 @@ describe('PizzasEffects', () => {
 			const action = new fromActions.CreatePizza(pizzas[0]);
 			const completion = new fromActions.CreatePizzaSuccess(pizzas[0]);
 
-			actions$.stream = hot('-a', { a: action });
+			// actions$.stream = hot('-a', { a: action });
 			const expected = cold('-c', { c: completion });
 
 			expect(effects.createPizza$).toBeObservable(expected);
@@ -86,7 +84,7 @@ describe('PizzasEffects', () => {
 			const action = new fromActions.UpdatePizza(pizzas[0]);
 			const completion = new fromActions.UpdatePizzaSuccess(pizzas[0]);
 
-			actions$.stream = hot('-a', { a: action });
+			// actions$.stream = hot('-a', { a: action });
 			const expected = cold('-c', { c: completion });
 
 			expect(effects.updatePizza$).toBeObservable(expected);
@@ -98,7 +96,7 @@ describe('PizzasEffects', () => {
 			const action = new fromActions.RemovePizza(pizzas[0]);
 			const completion = new fromActions.RemovePizzaSuccess(pizzas[0]);
 
-			actions$.stream = hot('-a', { a: action });
+			// actions$.stream = hot('-a', { a: action });
 			const expected = cold('-c', { c: completion });
 
 			expect(effects.removePizza$).toBeObservable(expected);

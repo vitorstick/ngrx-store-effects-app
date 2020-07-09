@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Actions, Effect } from '@ngrx/effects';
-import { of } from 'rxjs/Observable/of';
+import { Actions, Effect, ofType } from '@ngrx/effects';
+import { of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import * as fromRoot from '../../../app/store';
 import * as fromServices from '../../services';
@@ -12,7 +12,8 @@ export class PizzasEffects {
 
 	// EFFECTS RETURN ACTIONS
 	@Effect()
-	loadPizzas$ = this.actions$.ofType(pizzaActions.LOAD_PIZZAS).pipe(
+	loadPizzas$ = this.actions$.pipe(
+		ofType(pizzaActions.LOAD_PIZZAS),
 		switchMap(() => {
 			return this.pizzaService
 				.getPizzas()
@@ -24,7 +25,8 @@ export class PizzasEffects {
 	);
 
 	@Effect()
-	createPizza$ = this.actions$.ofType(pizzaActions.CREATE_PIZZA).pipe(
+	createPizza$ = this.actions$.pipe(
+		ofType(pizzaActions.CREATE_PIZZA),
 		map((action: pizzaActions.CreatePizza) => action.payload),
 		switchMap((pizza) => {
 			return this.pizzaService
@@ -38,7 +40,8 @@ export class PizzasEffects {
 
 	// FOR MANAGING CREATE PIZZA WITH SUCCESS AND THEN NAVIGATE TO THE PIZZA
 	@Effect()
-	createPizzaSuccess$ = this.actions$.ofType(pizzaActions.CREATE_PIZZA_SUCESS).pipe(
+	createPizzaSuccess$ = this.actions$.pipe(
+		ofType(pizzaActions.CREATE_PIZZA_SUCESS),
 		map((action: pizzaActions.CreatePizzaSuccess) => action.payload),
 		map((pizza) => {
 			return new fromRoot.Go({
@@ -48,7 +51,8 @@ export class PizzasEffects {
 	);
 
 	@Effect()
-	updatePizza$ = this.actions$.ofType(pizzaActions.UPDATE_PIZZA).pipe(
+	updatePizza$ = this.actions$.pipe(
+		ofType(pizzaActions.UPDATE_PIZZA),
 		map((action: pizzaActions.UpdatePizza) => action.payload),
 		switchMap((pizza) => {
 			return this.pizzaService
@@ -61,7 +65,8 @@ export class PizzasEffects {
 	);
 
 	@Effect()
-	removePizza$ = this.actions$.ofType(pizzaActions.REMOVE_PIZZA).pipe(
+	removePizza$ = this.actions$.pipe(
+		ofType(pizzaActions.REMOVE_PIZZA),
 		map((action: pizzaActions.RemovePizza) => action.payload),
 		switchMap((pizza) => {
 			return this.pizzaService
@@ -75,13 +80,12 @@ export class PizzasEffects {
 
 	// EFFECT FOR MULTIPLE ACTIONS (THIS CASE FOR UPDATE PIZZA SUCCESS AND REMOVE PIZZA SUCCESS)
 	@Effect()
-	handlePizzaSuccess$ = this.actions$
-		.ofType(pizzaActions.UPDATE_PIZZA_SUCCESS, pizzaActions.REMOVE_PIZZA_SUCCESS)
-		.pipe(
-			map((pizza) => {
-				return new fromRoot.Go({
-					path: [ '/products' ]
-				});
-			})
-		);
+	handlePizzaSuccess$ = this.actions$.pipe(
+		ofType(pizzaActions.UPDATE_PIZZA_SUCCESS, pizzaActions.REMOVE_PIZZA_SUCCESS),
+		map((pizza) => {
+			return new fromRoot.Go({
+				path: [ '/products' ]
+			});
+		})
+	);
 }

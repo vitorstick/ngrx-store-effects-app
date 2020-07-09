@@ -1250,7 +1250,6 @@ import { CustomSerializer, effects, reducers } from './store';
 
 ```
 // products/guards/pizzas.guard.ts
-import { Observable } from 'rxjs/Observable';
 import { catchError, filter, switchMap, take, tap } from 'rxjs/operators';
 import * as fromStore from '../store';
 
@@ -1339,7 +1338,6 @@ import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivate } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { of } from 'core-js/fn/array';
-import { Observable } from 'rxjs/Observable';
 import { catchError, filter, map, switchMap, take, tap } from 'rxjs/operators';
 import { Pizza } from '../models/pizza.model';
 import * as fromStore from '../store';
@@ -1418,7 +1416,6 @@ import { Injectable } from '@angular/core';
 import { CanActivate } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { of } from 'core-js/fn/array';
-import { Observable } from 'rxjs/Observable';
 import { catchError, filter, switchMap, take, tap } from 'rxjs/operators';
 import * as fromStore from '../store';
 
